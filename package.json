@@ -1,0 +1,17 @@
+{
+  "name": "chat-pgs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21",
+    "tailwind": "^4.0.0",
+    "vite": "^4.0.0"
+  }
+}
