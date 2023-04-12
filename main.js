@@ -7,8 +7,9 @@ document.querySelector('#app').innerHTML = `
 <div id="apiKeyPrompt" class="modal">
   <div class="modal-content">
     <p>No OpenAI API key found, please generate one at <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener noreferrer">https://platform.openai.com/account/api-keys</a> and provide it here:</p>
+    <p id="api-key-error-message" class="hidden error-message">ERROR: Incorrect OpenAI API key provided. Please try again.</p>
     <div class="modal-input">
-      <input type="text" id="apiKeyInput" placeholder="Enter API key here" />
+      <input type="text" id="apiKeyInput" placeholder="Enter API key here" autocomplete="off"/>
       <button id="submitApiKey">Submit</button>
     </div>
   </div>
@@ -20,7 +21,7 @@ document.querySelector('#app').innerHTML = `
       <li>💬 Blah blah blah!</li>
     </ul>
     <div class="nav-footer">
-      <p>Made by Jeya</p>
+      <a href="#" id="logout">🚪 Logout</a>
     </div>
   </nav>
   <div class="main">
@@ -29,7 +30,7 @@ document.querySelector('#app').innerHTML = `
       <h1>ChatPRS</h1>
       <div class="header-icons">
         <div class="triangle"></div>
-        <a href="https://github.com/jeyabbalas" target="_blank" aria-label="GitHub link">
+        <a href="https://github.com/jeyabbalas/chat-pgs" target="_blank" aria-label="GitHub link">
           <img src="${githubIcon}" alt="GitHub Logo" class="github-logo" />
         </a>
       </div>
@@ -56,31 +57,57 @@ document.querySelector('#app').innerHTML = `
 console.log(openai)
 
 function showApiKeyPrompt() {
-  const apiKeyPrompt = document.getElementById("apiKeyPrompt");
-  apiKeyPrompt.style.display = "block";
+    const apiKeyPrompt = document.getElementById("apiKeyPrompt");
+    apiKeyPrompt.style.display = "block";
 }
 
 function hideApiKeyPrompt() {
-  const apiKeyPrompt = document.getElementById("apiKeyPrompt");
-  apiKeyPrompt.style.display = "none";
+    const apiKeyPrompt = document.getElementById("apiKeyPrompt");
+    apiKeyPrompt.style.display = "none";
 }
 
 function promptForOpenAiApiKey() {
-  const apiKey = localStorage.OPENAI_API_KEY;
+    const apiKey = localStorage.OPENAI_API_KEY;
 
-  if (!apiKey || apiKey === 'null' || apiKey.length === 0) {
-    showApiKeyPrompt();
-  }
+    if (!apiKey || apiKey === 'null' || apiKey.length === 0) {
+        showApiKeyPrompt();
+    }
 }
 
-document.getElementById("submitApiKey").addEventListener("click", () => {
-  const apiKeyInput = document.getElementById("apiKeyInput");
-  const apiKey = apiKeyInput.value;
 
-  if (apiKey) {
-    localStorage.OPENAI_API_KEY = apiKey;
-    hideApiKeyPrompt();
-  }
+document.getElementById("submitApiKey").addEventListener("click", async () => {
+    const checkAPIKeyValidity = async (apiKey) => {
+        const testURL = 'https://api.openai.com/v1/engines';
+
+        try {
+            const response = await fetch(testURL, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+            });
+
+            return response.status === 200;
+        } catch (error) {
+            console.error('Error while checking API key validity:', error);
+            return false;
+        }
+    };
+    const apiKeyInput = document.getElementById("apiKeyInput");
+    const apiKey = apiKeyInput.value;
+
+    if (await checkAPIKeyValidity(apiKey)) {
+        localStorage.OPENAI_API_KEY = apiKey;
+        hideApiKeyPrompt();
+    } else {
+        const apiKeyErrorMessage = document.getElementById("api-key-error-message");
+        apiKeyErrorMessage.classList.remove("hidden");
+    }
+});
+
+document.getElementById("logout").addEventListener("click", () => {
+    delete localStorage.OPENAI_API_KEY;
 });
 
 promptForOpenAiApiKey();

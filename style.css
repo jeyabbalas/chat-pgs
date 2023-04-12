@@ -41,6 +41,14 @@ body {
   width: 40%;
 }
 
+.error-message {
+  color: hsl(0, 100%, 50%);
+}
+
+.hidden {
+  display: none;
+}
+
 #apiKeyInput {
   width: 70%;
   padding: 12px 20px;
