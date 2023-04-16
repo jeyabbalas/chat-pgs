@@ -1,6 +1,7 @@
 import './style.css'
 import githubIcon from './github.svg'
-import openai from 'https://cdn.skypack.dev/openai@3.2.1?min';
+//import openai from 'https://cdn.skypack.dev/openai@3.2.1?min';
+import { checkAPIKeyValidity, setOpenAiApiKey, getOpenAiApiKey, deleteOpenAiApiKey } from './export.js';
 
 
 document.querySelector('#app').innerHTML = `
@@ -54,60 +55,41 @@ document.querySelector('#app').innerHTML = `
 </div>
 `
 
-console.log(openai)
 
 function showApiKeyPrompt() {
-    const apiKeyPrompt = document.getElementById("apiKeyPrompt");
-    apiKeyPrompt.style.display = "block";
+    const apiKeyPrompt = document.getElementById('apiKeyPrompt');
+    apiKeyPrompt.style.display = 'block';
 }
 
 function hideApiKeyPrompt() {
-    const apiKeyPrompt = document.getElementById("apiKeyPrompt");
-    apiKeyPrompt.style.display = "none";
+    const apiKeyPrompt = document.getElementById('apiKeyPrompt');
+    apiKeyPrompt.style.display = 'none';
 }
 
 function promptForOpenAiApiKey() {
-    const apiKey = localStorage.OPENAI_API_KEY;
+    const apiKey = getOpenAiApiKey();
 
-    if (!apiKey || apiKey === 'null' || apiKey.length === 0) {
+    if (!apiKey || apiKey === 'null' || apiKey.length === 0 || !checkAPIKeyValidity(apiKey)) {
         showApiKeyPrompt();
     }
 }
 
-
-document.getElementById("submitApiKey").addEventListener("click", async () => {
-    const checkAPIKeyValidity = async (apiKey) => {
-        const testURL = 'https://api.openai.com/v1/engines';
-
-        try {
-            const response = await fetch(testURL, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                },
-            });
-
-            return response.status === 200;
-        } catch (error) {
-            console.error('Error while checking API key validity:', error);
-            return false;
-        }
-    };
-    const apiKeyInput = document.getElementById("apiKeyInput");
+document.getElementById('submitApiKey').addEventListener('click', async () => {
+    const apiKeyInput = document.getElementById('apiKeyInput');
     const apiKey = apiKeyInput.value;
 
     if (await checkAPIKeyValidity(apiKey)) {
-        localStorage.OPENAI_API_KEY = apiKey;
+        setOpenAiApiKey(apiKey);
         hideApiKeyPrompt();
     } else {
-        const apiKeyErrorMessage = document.getElementById("api-key-error-message");
-        apiKeyErrorMessage.classList.remove("hidden");
+        const apiKeyErrorMessage = document.getElementById('api-key-error-message');
+        apiKeyErrorMessage.classList.remove('hidden');
     }
 });
 
-document.getElementById("logout").addEventListener("click", () => {
-    delete localStorage.OPENAI_API_KEY;
+document.getElementById('logout').addEventListener('click', () => {
+    deleteOpenAiApiKey();
+    promptForOpenAiApiKey();
 });
 
 promptForOpenAiApiKey();
