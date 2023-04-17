@@ -109,13 +109,15 @@ const createMessageBubble = (message, isUser) => {
     return messageBubble;
 }
 
+const chatContext = [];
+
 document.getElementById('submit').addEventListener('click', async () => {
     const userMessage = query.value;
     query.value = '';
     const userMessageBubble = createMessageBubble(userMessage, true);
     messagesPanel.appendChild(userMessageBubble);
 
-    const message = await createChatCompletion(userMessage, manageOpenAiApiKey.getOpenAiApiKey());
+    const message = await createChatCompletion(userMessage, chatContext, manageOpenAiApiKey.getOpenAiApiKey());
     const chatgptMessageBubble = createMessageBubble(message, false);
     messagesPanel.appendChild(chatgptMessageBubble);
 });

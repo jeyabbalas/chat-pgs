@@ -35,8 +35,10 @@ const manageConversations = {
 
 }
 
-const createChatCompletion = async (prompt, apiKey) => {
+const createChatCompletion = async (prompt, chatContext, apiKey) => {
     const chatCompletionURL = 'https://api.openai.com/v1/chat/completions';
+
+    chatContext.push({ role: 'user', content: prompt });
 
     try {
         const response = await fetch(chatCompletionURL, {
@@ -47,13 +49,16 @@ const createChatCompletion = async (prompt, apiKey) => {
             },
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo',
-                messages: [{role: 'user', content: prompt}],
+                messages: chatContext,
             })
         });
 
         const data = await response.json();
+        const message = data.choices[0].message.content;
 
-        return data.choices[0].message.content;
+        chatContext.push({ role: 'assistant', content: message });
+
+        return message;
     } catch (error) {
         console.error('Error while creating chat completion:', error);
     }
