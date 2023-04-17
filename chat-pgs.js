@@ -1,16 +1,16 @@
-const a = {
+const i = {
   async checkApiKeyValidity(e) {
-    const o = "https://api.openai.com/v1/engines";
+    const t = "https://api.openai.com/v1/engines";
     try {
-      return (await fetch(o, {
+      return (await fetch(t, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${e}`
         }
       })).status === 200;
-    } catch (t) {
-      return console.error("Error while checking API key validity:", t), !1;
+    } catch (o) {
+      return console.error("Error while checking API key validity:", o), !1;
     }
   },
   setOpenAiApiKey(e) {
@@ -22,10 +22,11 @@ const a = {
   deleteOpenAiApiKey() {
     delete localStorage.OPENAI_API_KEY;
   }
-}, s = async (e, o) => {
-  const t = "https://api.openai.com/v1/chat/completions";
+}, c = async (e, t, o) => {
+  const a = "https://api.openai.com/v1/chat/completions";
+  t.push({ role: "user", content: e });
   try {
-    return (await (await fetch(t, {
+    const r = (await (await fetch(a, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,15 +34,16 @@ const a = {
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: e }]
+        messages: t
       })
     })).json()).choices[0].message.content;
+    return t.push({ role: "assistant", content: r }), r;
   } catch (n) {
     console.error("Error while creating chat completion:", n);
   }
 };
 export {
-  s as createChatCompletion,
-  a as manageOpenAiApiKey
+  c as createChatCompletion,
+  i as manageOpenAiApiKey
 };
 //# sourceMappingURL=chat-pgs.js.map
