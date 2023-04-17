@@ -1,7 +1,6 @@
 import './style.css'
 import githubIcon from './github.svg'
-//import openai from 'https://cdn.skypack.dev/openai@3.2.1?min';
-import { checkAPIKeyValidity, setOpenAiApiKey, getOpenAiApiKey, deleteOpenAiApiKey } from './export.js';
+import { manageOpenAiApiKey, createChatCompletion } from './chat-pgs.js';
 
 
 document.querySelector('#app').innerHTML = `
@@ -28,7 +27,7 @@ document.querySelector('#app').innerHTML = `
   <div class="main">
     <div class="header">
       <div></div>
-      <h1>ChatPRS</h1>
+      <h1>ChatPGS</h1>
       <div class="header-icons">
         <div class="triangle"></div>
         <a href="https://github.com/jeyabbalas/chat-pgs" target="_blank" aria-label="GitHub link">
@@ -36,10 +35,10 @@ document.querySelector('#app').innerHTML = `
         </a>
       </div>
     </div>
-    <ul class="messages"></ul>
+    <div id="messages"></div>
     <div class="input-footer">
       <div class="input-container">
-        <input type="text" placeholder="Send a message..." />
+        <input id="query" type="text" placeholder="Send a message..." autocomplete="off"/>
         <div id="submit">
          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="paperplane">
            <path d="M0 0h24v24H0z" fill="none" />
@@ -55,6 +54,8 @@ document.querySelector('#app').innerHTML = `
 </div>
 `
 
+const query = document.getElementById('query');
+const messagesPanel = document.getElementById('messages');
 
 function showApiKeyPrompt() {
     const apiKeyPrompt = document.getElementById('apiKeyPrompt');
@@ -66,10 +67,10 @@ function hideApiKeyPrompt() {
     apiKeyPrompt.style.display = 'none';
 }
 
-function promptForOpenAiApiKey() {
-    const apiKey = getOpenAiApiKey();
+const promptForOpenAiApiKey = async () => {
+    const apiKey = manageOpenAiApiKey.getOpenAiApiKey();
 
-    if (!apiKey || apiKey === 'null' || apiKey.length === 0 || !checkAPIKeyValidity(apiKey)) {
+    if (!apiKey || apiKey === 'null' || apiKey.length === 0 || !(await manageOpenAiApiKey.checkApiKeyValidity(apiKey))) {
         showApiKeyPrompt();
     }
 }
@@ -78,8 +79,8 @@ document.getElementById('submitApiKey').addEventListener('click', async () => {
     const apiKeyInput = document.getElementById('apiKeyInput');
     const apiKey = apiKeyInput.value;
 
-    if (await checkAPIKeyValidity(apiKey)) {
-        setOpenAiApiKey(apiKey);
+    if (await manageOpenAiApiKey.checkApiKeyValidity(apiKey)) {
+        manageOpenAiApiKey.setOpenAiApiKey(apiKey);
         hideApiKeyPrompt();
     } else {
         const apiKeyErrorMessage = document.getElementById('api-key-error-message');
@@ -87,9 +88,34 @@ document.getElementById('submitApiKey').addEventListener('click', async () => {
     }
 });
 
-document.getElementById('logout').addEventListener('click', () => {
-    deleteOpenAiApiKey();
-    promptForOpenAiApiKey();
+document.getElementById('logout').addEventListener('click', async () => {
+    manageOpenAiApiKey.deleteOpenAiApiKey();
+    await promptForOpenAiApiKey();
 });
 
-promptForOpenAiApiKey();
+promptForOpenAiApiKey().then(() => {});
+
+document.getElementById('query').addEventListener('keyup', function (event) {
+    if (event.key === 'Enter' && event.target.value.length > 0) {
+        document.getElementById('submit').click();
+    }
+});
+
+const createMessageBubble = (message, isUser) => {
+    const messageBubble = document.createElement('div');
+    messageBubble.classList.add('message-bubble');
+    messageBubble.classList.add(isUser ? 'user-message' : 'chatgpt-message');
+    messageBubble.textContent = message;
+    return messageBubble;
+}
+
+document.getElementById('submit').addEventListener('click', async () => {
+    const userMessage = query.value;
+    query.value = '';
+    const userMessageBubble = createMessageBubble(userMessage, true);
+    messagesPanel.appendChild(userMessageBubble);
+
+    const message = await createChatCompletion(userMessage, manageOpenAiApiKey.getOpenAiApiKey());
+    const chatgptMessageBubble = createMessageBubble(message, false);
+    messagesPanel.appendChild(chatgptMessageBubble);
+});

@@ -8,7 +8,7 @@ export default defineConfig({
         outDir: "dist",
         sourcemap: true,
         lib: {
-            entry: resolve(__dirname, 'export.js'),
+            entry: resolve(__dirname, 'chat-pgs.js'),
             name: 'ChatPGS',
             fileName: 'chat-pgs',
             formats: ['es']
