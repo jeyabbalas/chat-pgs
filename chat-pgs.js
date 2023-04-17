@@ -31,6 +31,10 @@ const manageOpenAiApiKey = {
     }
 }
 
+const manageConversations = {
+
+}
+
 const createChatCompletion = async (prompt, apiKey) => {
     const chatCompletionURL = 'https://api.openai.com/v1/chat/completions';
 
@@ -44,7 +48,6 @@ const createChatCompletion = async (prompt, apiKey) => {
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo',
                 messages: [{role: 'user', content: prompt}],
-                max_tokens: 100,
             })
         });
 

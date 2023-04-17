@@ -33,8 +33,7 @@ const a = {
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: e }],
-        max_tokens: 100
+        messages: [{ role: "user", content: e }]
       })
     })).json()).choices[0].message.content;
   } catch (n) {
