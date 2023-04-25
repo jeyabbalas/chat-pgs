@@ -1,5 +1,5 @@
 const manageOpenAiApiKey = {
-    async checkApiKeyValidity(apiKey) {
+    async checkValidity(apiKey) {
         const testURL = 'https://api.openai.com/v1/engines';
 
         try {
@@ -18,15 +18,15 @@ const manageOpenAiApiKey = {
         }
     },
 
-    setOpenAiApiKey(apiKey) {
+    setKey(apiKey) {
         localStorage.OPENAI_API_KEY = apiKey;
     },
 
-    getOpenAiApiKey() {
+    getKey() {
         return localStorage.OPENAI_API_KEY;
     },
 
-    deleteOpenAiApiKey() {
+    deleteKey() {
         delete localStorage.OPENAI_API_KEY;
     }
 }
@@ -62,6 +62,10 @@ const createChatCompletion = async (prompt, chatContext, apiKey) => {
     } catch (error) {
         console.error('Error while creating chat completion:', error);
     }
+}
+
+const managePgsDatabase = {
+
 }
 
 export {

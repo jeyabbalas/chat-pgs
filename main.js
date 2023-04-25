@@ -68,9 +68,9 @@ function hideApiKeyPrompt() {
 }
 
 const promptForOpenAiApiKey = async () => {
-    const apiKey = manageOpenAiApiKey.getOpenAiApiKey();
+    const apiKey = manageOpenAiApiKey.getKey();
 
-    if (!apiKey || apiKey === 'null' || apiKey.length === 0 || !(await manageOpenAiApiKey.checkApiKeyValidity(apiKey))) {
+    if (!apiKey || apiKey === 'null' || apiKey.length === 0 || !(await manageOpenAiApiKey.checkValidity(apiKey))) {
         showApiKeyPrompt();
     }
 }
@@ -79,8 +79,8 @@ document.getElementById('submitApiKey').addEventListener('click', async () => {
     const apiKeyInput = document.getElementById('apiKeyInput');
     const apiKey = apiKeyInput.value;
 
-    if (await manageOpenAiApiKey.checkApiKeyValidity(apiKey)) {
-        manageOpenAiApiKey.setOpenAiApiKey(apiKey);
+    if (await manageOpenAiApiKey.checkValidity(apiKey)) {
+        manageOpenAiApiKey.setKey(apiKey);
         hideApiKeyPrompt();
     } else {
         const apiKeyErrorMessage = document.getElementById('api-key-error-message');
@@ -89,7 +89,7 @@ document.getElementById('submitApiKey').addEventListener('click', async () => {
 });
 
 document.getElementById('logout').addEventListener('click', async () => {
-    manageOpenAiApiKey.deleteOpenAiApiKey();
+    manageOpenAiApiKey.deleteKey();
     await promptForOpenAiApiKey();
 });
 
@@ -117,7 +117,7 @@ document.getElementById('submit').addEventListener('click', async () => {
     const userMessageBubble = createMessageBubble(userMessage, true);
     messagesPanel.appendChild(userMessageBubble);
 
-    const message = await createChatCompletion(userMessage, chatContext, manageOpenAiApiKey.getOpenAiApiKey());
+    const message = await createChatCompletion(userMessage, chatContext, manageOpenAiApiKey.getKey());
     const chatgptMessageBubble = createMessageBubble(message, false);
     messagesPanel.appendChild(chatgptMessageBubble);
 });
