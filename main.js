@@ -1,6 +1,6 @@
 import './style.css'
 import githubIcon from './github.svg'
-import { manageOpenAiApiKey, createChatCompletion } from './chat-pgs.js';
+import { manageOpenAiApiKey, createChatCompletion, pgsDatabase } from './chat-pgs.js';
 
 
 document.querySelector('#app').innerHTML = `
@@ -110,6 +110,7 @@ const createMessageBubble = (message, isUser) => {
 }
 
 const chatContext = [];
+console.log(await pgsDatabase.findNearestNeighbors('What is the AUC associated with PRS313?', 3, manageOpenAiApiKey.getKey()));
 
 document.getElementById('submit').addEventListener('click', async () => {
     const userMessage = query.value;
