@@ -1,6 +1,6 @@
 import './style.css'
 import githubIcon from './github.svg'
-import { manageOpenAiApiKey, createChatCompletion, pgsDatabase } from './chat-pgs.js';
+import { manageOpenAiApiKey, manageConversations, pgsDatabase } from './chat-pgs.js';
 
 
 document.querySelector('#app').innerHTML = `
@@ -18,7 +18,7 @@ document.querySelector('#app').innerHTML = `
   <nav class="side-bar">
     <a class="button">+ New chat</a>
     <ul class="chat-history">
-      <li>💬 Blah blah blah!</li>
+      <li>💬 Chat history</li>
     </ul>
     <div class="nav-footer">
       <a href="#" id="logout">🚪 Logout</a>
@@ -109,8 +109,7 @@ const createMessageBubble = (message, isUser) => {
     return messageBubble;
 }
 
-const chatContext = [];
-console.log(await pgsDatabase.findNearestNeighbors('What is the AUC associated with PRS313?', 3, manageOpenAiApiKey.getKey()));
+manageConversations.init();
 
 document.getElementById('submit').addEventListener('click', async () => {
     const userMessage = query.value;
@@ -118,7 +117,7 @@ document.getElementById('submit').addEventListener('click', async () => {
     const userMessageBubble = createMessageBubble(userMessage, true);
     messagesPanel.appendChild(userMessageBubble);
 
-    const message = await createChatCompletion(userMessage, chatContext, manageOpenAiApiKey.getKey());
+    const message = await manageConversations.askChatGPT(userMessage, pgsDatabase, manageOpenAiApiKey.getKey());
     const chatgptMessageBubble = createMessageBubble(message, false);
     messagesPanel.appendChild(chatgptMessageBubble);
 });
