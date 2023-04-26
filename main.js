@@ -1,6 +1,6 @@
 import './style.css'
 import githubIcon from './github.svg'
-import { manageOpenAiApiKey, manageConversations, pgsDatabase } from './chat-pgs.js';
+import { manageOpenAiApiKey, manageConversations } from './chat-pgs.js';
 
 
 document.querySelector('#app').innerHTML = `
@@ -117,7 +117,7 @@ document.getElementById('submit').addEventListener('click', async () => {
     const userMessageBubble = createMessageBubble(userMessage, true);
     messagesPanel.appendChild(userMessageBubble);
 
-    const message = await manageConversations.askChatGPT(userMessage, pgsDatabase, manageOpenAiApiKey.getKey());
+    const message = await manageConversations.askChatGPT(userMessage, manageOpenAiApiKey.getKey());
     const chatgptMessageBubble = createMessageBubble(message, false);
     messagesPanel.appendChild(chatgptMessageBubble);
 });

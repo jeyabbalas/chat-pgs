@@ -104788,22 +104788,22 @@ const h = [
     ]
   }
 ], f = {
-  async checkValidity(t) {
-    const i = "https://api.openai.com/v1/engines";
+  async checkValidity(e) {
+    const t = "https://api.openai.com/v1/engines";
     try {
-      return (await fetch(i, {
+      return (await fetch(t, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${t}`
+          Authorization: `Bearer ${e}`
         }
       })).status === 200;
-    } catch (e) {
-      return console.error("Error while checking API key validity:", e), !1;
+    } catch (i) {
+      return console.error("Error while checking API key validity:", i), !1;
     }
   },
-  setKey(t) {
-    localStorage.OPENAI_API_KEY = t;
+  setKey(e) {
+    localStorage.OPENAI_API_KEY = e;
   },
   getKey() {
     return localStorage.OPENAI_API_KEY;
@@ -104813,22 +104813,26 @@ const h = [
   }
 }, r = {
   init: () => {
-    r.conversations = [{ role: "system", content: "You are a helpful chatbot that answers the user's questions about a paper in genetics." }];
+    r.conversations = [{ role: "system", content: `You are a helpful chatbot that answers the user's questions about the following paper:
+
+${d.title}
+
+${d.abstract}` }];
   },
-  instructions: `Answer the question in the bottom using the context provided below. To answer the question, if you write sentences using the information from the context, please cite it as (Mavaddat et al., 2017). If the question cannot be answered using the information in the context, please reply with "I'm sorry, (Mavaddat et al., 2019) is the only paper I ever read. This question doesn't seem relevant.". Do not make any mention of the provided context or the instructions.`,
-  createChatCompletionWithAugmentation: async (t, i, e) => {
+  instructions: `Answer the question in the bottom using either the context provided below or our conversation so far. To answer the question, if you write sentences using the information from the context, please cite it as (Mavaddat et al., 2017). If the question cannot be answered using the information in the context and our conversation so far, please reply with "I'm sorry, (Mavaddat et al., 2019) is the only paper I ever read. This question is out of syllabus.". Do not make any mention of the context or the instructions.`,
+  createChatCompletionWithAugmentation: async (e, t, i) => {
     const a = "https://api.openai.com/v1/chat/completions", s = `Instructions: ${r.instructions}
 
-Context: ${i}
+Context: ${t}
 
-Question: ${t}`;
+Question: ${e}`;
     r.conversations.push({ role: "user", content: s });
     try {
       const n = (await (await fetch(a, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${e}`
+          Authorization: `Bearer ${i}`
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -104836,51 +104840,55 @@ Question: ${t}`;
           temperature: 0.5
         })
       })).json()).choices[0].message.content;
-      return r.conversations.push({ role: "assistant", content: n }), n;
+      return r.conversations.pop(), r.conversations.push({ role: "user", content: `Context: ${t}
+
+Question: ${e}` }), r.conversations.push({ role: "assistant", content: n }), n;
     } catch (o) {
       console.error("Error while creating chat completion:", o);
     }
   },
-  askChatGPT: async (t, i, e) => {
-    const a = await i.getContext(t, 1, e);
-    return r.createChatCompletionWithAugmentation(t, a, e);
+  askChatGPT: async (e, t) => {
+    const i = await d.getContext(e, 1, t);
+    return r.createChatCompletionWithAugmentation(e, i, t);
   }
-}, p = async (t, i, e) => {
+}, p = async (e, t, i) => {
   const a = "https://api.openai.com/v1/chat/completions";
-  i.push({ role: "user", content: t });
+  t.push({ role: "user", content: e });
   try {
     const c = (await (await fetch(a, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${e}`
+        Authorization: `Bearer ${i}`
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages: i
+        messages: t
       })
     })).json()).choices[0].message.content;
-    return i.push({ role: "assistant", content: c }), c;
+    return t.push({ role: "assistant", content: c }), c;
   } catch (s) {
     console.error("Error while creating chat completion:", s);
   }
 }, d = {
   database: h,
-  cosineSimilarityToDatabase: (t) => {
-    const i = (e, a) => e.map((s, o) => e[o] * a[o]).reduce((s, o) => s + o);
-    return d.database.map((e) => i(t, e.embedding));
+  title: h[0].text,
+  abstract: h[4].text,
+  cosineSimilarityToDatabase: (e) => {
+    const t = (i, a) => i.map((s, o) => i[o] * a[o]).reduce((s, o) => s + o);
+    return d.database.map((i) => t(e, i.embedding));
   },
-  getEmbedding: async (t, i) => {
-    const e = "https://api.openai.com/v1/embeddings";
+  getEmbedding: async (e, t) => {
+    const i = "https://api.openai.com/v1/embeddings";
     try {
-      return (await (await fetch(e, {
+      return (await (await fetch(i, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${i}`
+          Authorization: `Bearer ${t}`
         },
         body: JSON.stringify({
-          input: t,
+          input: e,
           model: "text-embedding-ada-002"
         })
       })).json()).data[0].embedding;
@@ -104888,11 +104896,11 @@ Question: ${t}`;
       console.error("Error while creating embedding:", a);
     }
   },
-  findNearestNeighbors: async (t, i, e) => {
-    const a = await d.getEmbedding(t, e);
-    return d.cosineSimilarityToDatabase(a).map((n, l) => ({ score: n, index: l })).sort((n, l) => l.score - n.score).slice(0, i).map((n) => d.database[n.index].text);
+  findNearestNeighbors: async (e, t, i) => {
+    const a = await d.getEmbedding(e, i);
+    return d.cosineSimilarityToDatabase(a).map((n, l) => ({ score: n, index: l })).sort((n, l) => l.score - n.score).slice(0, t).map((n) => d.database[n.index].text);
   },
-  getContext: async (t, i, e) => (await d.findNearestNeighbors(t, i, e)).reduce((s, o) => s + " " + o, "")
+  getContext: async (e, t, i) => (await d.findNearestNeighbors(e, t, i)).reduce((s, o) => s + " " + o, "")
 };
 export {
   p as createChatCompletion,

@@ -35,10 +35,10 @@ const manageOpenAiApiKey = {
 
 const manageConversations = {
     init: () => {
-        manageConversations.conversations = [{ role: 'system', content: "You are a helpful chatbot that answers the user's questions about a paper in genetics." }];
+        manageConversations.conversations = [{ role: 'system', content: `You are a helpful chatbot that answers the user's questions about the following paper:\n\n${pgsDatabase.title}\n\n${pgsDatabase.abstract}` }];
     },
 
-    instructions: "Answer the question in the bottom using the context provided below. To answer the question, if you write sentences using the information from the context, please cite it as (Mavaddat et al., 2017). If the question cannot be answered using the information in the context, please reply with \"I'm sorry, (Mavaddat et al., 2019) is the only paper I ever read. This question doesn't seem relevant.\". Do not make any mention of the provided context or the instructions.",
+    instructions: "Answer the question in the bottom using either the context provided below or our conversation so far. To answer the question, if you write sentences using the information from the context, please cite it as (Mavaddat et al., 2017). If the question cannot be answered using the information in the context and our conversation so far, please reply with \"I'm sorry, (Mavaddat et al., 2019) is the only paper I ever read. This question is out of syllabus.\". Do not make any mention of the context or the instructions.",
 
     createChatCompletionWithAugmentation: async (prompt, augmentation, apiKey) => {
         const chatCompletionURL = 'https://api.openai.com/v1/chat/completions';
@@ -62,6 +62,8 @@ const manageConversations = {
             const data = await response.json();
             const message = data.choices[0].message.content;
 
+            manageConversations.conversations.pop();
+            manageConversations.conversations.push({ role: 'user', content: `Context: ${augmentation}\n\nQuestion: ${prompt}` });
             manageConversations.conversations.push({ role: 'assistant', content: message });
 
             return message;
@@ -71,8 +73,8 @@ const manageConversations = {
 
     },
 
-    askChatGPT: async (prompt, db, apiKey) => {
-        const context = await db.getContext(prompt, 1, apiKey);
+    askChatGPT: async (prompt, apiKey) => {
+        const context = await pgsDatabase.getContext(prompt, 1, apiKey);
         return manageConversations.createChatCompletionWithAugmentation(prompt, context, apiKey);
     }
 }
@@ -108,6 +110,8 @@ const createChatCompletion = async (prompt, chatContext, apiKey) => {
 
 const pgsDatabase = {
     database: pgsEmbeddingsData,
+    title: pgsEmbeddingsData[0].text,
+    abstract: pgsEmbeddingsData[4].text,
 
     cosineSimilarityToDatabase: (normalizedVector) => {
         const dotProduct = (a, b) => a.map((x, i) => a[i] * b[i]).reduce((m, n) => m + n);
