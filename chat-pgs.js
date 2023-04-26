@@ -20033,7 +20033,7 @@ const h = [
     ]
   },
   {
-    text: "The general aim was to derive a polygenic risk score (PRS) equation of the form: $$PRS = \\beta_1\\cdot x_1 + \\beta_2\\cdot x_2 + \\cdots + \\beta_k\\cdot x_k + \\cdots + \\beta_n\\cdot x_n$$, where βk is the per-allele log odds ratio (OR) for breast cancer associated with SNP k, xk is the allele dosage for SNP k, and n is the total number of SNPs included in the PRS. ",
+    text: "The general aim was to derive a polygenic risk score (PRS) equation of the form: PRS = β₁⋅x₁ + β₂⋅x₂ + … + βₖ⋅ xₖ + … + βₙ⋅xₙ, where βₖ is the per-allele log odds ratio (OR) for breast cancer associated with SNP k, xₖ is the allele dosage for SNP k, and n is the total number of SNPs included in the PRS. ",
     embedding: [
       -0.024140402674674988,
       -0.007238165941089392,
@@ -30820,7 +30820,7 @@ const h = [
     ]
   },
   {
-    text: "To construct subtype-specific PRSs, we evaluated four different methods: (1) using effect sizes for overall breast cancer (for each of the subtypes), (2) using effect sizes for subtype-specific (ER-positive or ER-negative) disease, (3) using a hybrid method, in which effect sizes were estimated in the relevant subtype for SNPs passing a certain optimal significance threshold in a case-only logistic regression (ER-positive versus ER-negative disease), and otherwise, using effect sizes estimated for overall breast cancer, or (4) by estimating case-only ORs using lasso and combining these with the overall breast cancer ORs to derive subtype-specific estimates, using the formulae: Equation for ER-positive: $$β_{ERpositive} = \\beta_{overall} + \\eta ∗ \\beta_{case_only}$$ Equation for ER-negative: $$β_{ERnegative} = \\beta_{overall} - (1-\\eta) ∗ \\beta_{case_only}$$, where η = 0.27 was the proportion of ER-negative tumors in the validation set.",
+    text: "To construct subtype-specific PRSs, we evaluated four different methods: (1) using effect sizes for overall breast cancer (for each of the subtypes), (2) using effect sizes for subtype-specific (ER-positive or ER-negative) disease, (3) using a hybrid method, in which effect sizes were estimated in the relevant subtype for SNPs passing a certain optimal significance threshold in a case-only logistic regression (ER-positive versus ER-negative disease), and otherwise, using effect sizes estimated for overall breast cancer, or (4) by estimating case-only ORs using lasso and combining these with the overall breast cancer ORs to derive subtype-specific estimates, using the formulae: Equation for ER-positive: β_{ERpositive} = β_{overall} + η ∗ β_{case_only}. Equation for ER-negative: β_{ERnegative} = β_{overall} - (1-η) ∗ β_{case_only}, where η = 0.27 was the proportion of ER-negative tumors in the validation set.",
     embedding: [
       -0.011109428480267525,
       0.01513004768639803,
